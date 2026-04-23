@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Prep - 14 Day Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .incomplete { background-color: #E8E8E8; }
+        .java-done { background-color: #FF6B6B; }
+        .micro-done { background-color: #4ECDC4; }
+        .aws-done { background-color: #FFE66D; }
+        .all-done { background-color: #95E1D3; }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .day-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 5px solid #E8E8E8;
+        }
+
+        .day-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .day-card.all-complete {
+            border-left-color: #95E1D3;
+            background: linear-gradient(135deg, #f5f7ff 0%, #f0f9ff 100%);
+        }
+
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .day-number {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .day-date {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .topic-checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .topic-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            border-radius: 6px;
+            background: #f9f9f9;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .topic-item:hover {
+            background: #f0f0f0;
+        }
+
+        .topic-item.done {
+            background: #E8F8F5;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .topic-item.done .checkbox {
+            background-color: #27AE60;
+            border-color: #27AE60;
+            color: white;
+        }
+
+        .checkbox::after {
+            content: '✓';
+            font-weight: bold;
+            color: white;
+            font-size: 12px;
+        }
+
+        .topic-label {
+            flex: 1;
+            font-size: 0.95em;
+            color: #333;
+        }
+
+        .topic-item.done .topic-label {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .topic-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: bold;
+            color: white;
+            margin-top: 10px;
+            width: fit-content;
+        }
+
+        .badge-java { background-color: #FF6B6B; }
+        .badge-micro { background-color: #4ECDC4; }
+        .badge-aws { background-color: #FFE66D; color: #333; }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #E8E8E8;
+            border-radius: 3px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .stats {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            margin-bottom: 30px;
+        }
+
+        .stats h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .daily-schedule {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .daily-schedule h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .schedule-item {
+            display: flex;
+            gap: 20px;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 15px;
+            background: #f9f9f9;
+            border-radius: 6px;
+        }
+
+        .schedule-time {
+            font-weight: bold;
+            color: #667eea;
+            min-width: 80px;
+        }
+
+        .schedule-topic {
+            flex: 1;
+        }
+
+        .schedule-topic h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .schedule-topic p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .export-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: transform 0.2s;
+            margin-top: 20px;
+        }
+
+        .export-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .calendar-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .legend {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Interview Prep - 14 Day Intensive</h1>
+            <p>Java & Spring Boot • Microservices & Kafka • AWS (EC2, S3, RDS)</p>
+        </header>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-box incomplete"></div>
+                <span>Not Started</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box java-done"></div>
+                <span>Java/Spring Done</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box micro-done"></div>
+                <span>Microservices Done</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box aws-done"></div>
+                <span>AWS Done</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box all-done"></div>
+                <span>All Complete ✓</span>
+            </div>
+        </div>
+
+        <div class="stats">
+            <h2>📊 Progress Summary</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalComplete">0</div>
+                    <div class="stat-label">Days Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalTasks">0</div>
+                    <div class="stat-label">Tasks Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalHours">0</div>
+                    <div class="stat-label">Hours Studied</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="overallProgress">0%</div>
+                    <div class="stat-label">Overall Progress</div>
+                </div>
+            </div>
+        </div>
+
+        <h2 style="color: white; margin: 30px 0 20px 0;">📅 14-Day Calendar</h2>
+        <div class="calendar-grid" id="calendar"></div>
+
+        <div class="daily-schedule">
+            <h2>⏰ Daily Routine (9 Hours)</h2>
+            <div class="schedule-item">
+                <div class="schedule-time">3 hrs</div>
+                <div class="schedule-topic">
+                    <h4>☕ Java & Spring Boot</h4>
+                    <p>50 min deep dive • 50 min implementation • 40 min database • 40 min hands-on coding</p>
+                </div>
+            </div>
+            <div class="schedule-item">
+                <div class="schedule-time">3 hrs</div>
+                <div class="schedule-topic">
+                    <h4>🎯 Microservices & Kafka</h4>
+                    <p>50 min architecture • 50 min communication • 50 min Kafka • 30 min integration</p>
+                </div>
+            </div>
+            <div class="schedule-item">
+                <div class="schedule-time">3 hrs</div>
+                <div class="schedule-topic">
+                    <h4>☁️ AWS (EC2, S3, RDS)</h4>
+                    <p>50 min EC2 • 40 min S3 • 40 min RDS • 50 min deployment & hands-on</p>
+                </div>
+            </div>
+            <button class="export-btn" onclick="exportToCSV()">📥 Export Progress to CSV</button>
+        </div>
+
+        <div class="footer">
+            <p>💡 Tip: Check off tasks as you complete them. Click the boxes to toggle completion.</p>
+            <p>💪 You've got this! Stay consistent, take breaks, and sleep 7-8 hours daily.</p>
+        </div>
+    </div>
+
+    <script>
+        const topics = [
+            { name: 'Java & Spring Boot', color: 'java-done', badge: 'badge-java' },
+            { name: 'Microservices & Kafka', color: 'micro-done', badge: 'badge-micro' },
+            { name: 'AWS (EC2, S3, RDS)', color: 'aws-done', badge: 'badge-aws' }
+        ];
+
+        const dayData = {};
+
+        // Initialize localStorage
+        function initializeData() {
+            for (let day = 1; day <= 14; day++) {
+                const key = `day${day}`;
+                if (!localStorage.getItem(key)) {
+                    dayData[key] = {
+                        [topics[0].name]: false,
+                        [topics[1].name]: false,
+                        [topics[2].name]: false
+                    };
+                    localStorage.setItem(key, JSON.stringify(dayData[key]));
+                } else {
+                    dayData[key] = JSON.parse(localStorage.getItem(key));
+                }
+            }
+        }
+
+        // Get date for day
+        function getDate(dayNum) {
+            const today = new Date();
+            const date = new Date(today);
+            date.setDate(date.getDate() + dayNum - 1);
+            return date;
+        }
+
+        // Format date
+        function formatDate(date) {
+            const options = { month: 'short', day: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        }
+
+        // Toggle task
+        function toggleTask(day, topic) {
+            const key = `day${day}`;
+            dayData[key][topic] = !dayData[key][topic];
+            localStorage.setItem(key, JSON.stringify(dayData[key]));
+            renderCalendar();
+            updateStats();
+        }
+
+        // Render calendar
+        function renderCalendar() {
+            const calendar = document.getElementById('calendar');
+            calendar.innerHTML = '';
+
+            for (let day = 1; day <= 14; day++) {
+                const key = `day${day}`;
+                const dayTasks = dayData[key];
+                const date = getDate(day);
+                
+                const completed = Object.values(dayTasks).filter(v => v).length;
+                const allComplete = completed === 3;
+                
+                const card = document.createElement('div');
+                card.className = `day-card ${allComplete ? 'all-complete' : ''}`;
+                
+                let html = `
+                    <div class="day-header">
+                        <div>
+                            <div class="day-number">Day ${day}</div>
+                            <div class="day-date">${formatDate(date)}</div>
+                        </div>
+                    </div>
+                    <div class="topic-checklist">
+                `;
+
+                topics.forEach(topic => {
+                    const isComplete = dayTasks[topic.name];
+                    html += `
+                        <div class="topic-item ${isComplete ? 'done' : ''}" onclick="toggleTask(${day}, '${topic.name}')">
+                            <div class="checkbox"></div>
+                            <div class="topic-label">${topic.name}</div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${(completed/3)*100}%"></div>
+                    </div>
+                    <div style="margin-top: 10px; font-size: 0.85em; color: #666;">
+                        ${completed}/3 tasks completed
+                    </div>
+                `;
+
+                card.innerHTML = html;
+                calendar.appendChild(card);
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            let daysComplete = 0;
+            let totalTasks = 0;
+
+            for (let day = 1; day <= 14; day++) {
+                const key = `day${day}`;
+                const dayTasks = dayData[key];
+                const completed = Object.values(dayTasks).filter(v => v).length;
+                
+                totalTasks += completed;
+                if (completed === 3) daysComplete++;
+            }
+
+            const totalHours = totalTasks * 3;
+            const overallProgress = Math.round((totalTasks / 42) * 100);
+
+            document.getElementById('totalComplete').textContent = daysComplete;
+            document.getElementById('totalTasks').textContent = totalTasks;
+            document.getElementById('totalHours').textContent = totalHours;
+            document.getElementById('overallProgress').textContent = overallProgress + '%';
+        }
+
+        // Export to CSV
+        function exportToCSV() {
+            let csv = 'Day,Date,Java/Spring Boot,Microservices & Kafka,AWS,Status\n';
+
+            for (let day = 1; day <= 14; day++) {
+                const key = `day${day}`;
+                const dayTasks = dayData[key];
+                const date = getDate(day);
+
+                const java = dayTasks['Java & Spring Boot'] ? '✓' : '';
+                const micro = dayTasks['Microservices & Kafka'] ? '✓' : '';
+                const aws = dayTasks['AWS (EC2, S3, RDS)'] ? '✓' : '';
+                const status = (java && micro && aws) ? 'Complete' : 'Incomplete';
+
+                csv += `${day},${formatDate(date)},${java},${micro},${aws},${status}\n`;
+            }
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'interview-prep-progress.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            initializeData();
+            renderCalendar();
+            updateStats();
+        });
+    </script>
+</body>
+</html>
